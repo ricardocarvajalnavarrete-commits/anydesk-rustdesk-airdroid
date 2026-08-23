@@ -165,22 +165,42 @@
             background: #c7d2fe;
         }
         
-        .delete-btn {
+        .action-buttons {
             position: absolute;
             top: 15px;
             right: 15px;
-            background: #ef4444;
-            color: white;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .edit-btn, .delete-btn {
             border: none;
             padding: 5px 15px;
             border-radius: 5px;
             cursor: pointer;
             font-size: 0.85em;
             width: auto;
+            transition: all 0.3s;
+        }
+        
+        .edit-btn {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .edit-btn:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+        
+        .delete-btn {
+            background: #ef4444;
+            color: white;
         }
         
         .delete-btn:hover {
             background: #dc2626;
+            transform: translateY(-2px);
         }
         
         .notes {
@@ -204,6 +224,70 @@
             color: #999;
         }
         
+        /* Modal de edición */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideDown 0.3s;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .modal-header h2 {
+            color: #333;
+        }
+        
+        .close-btn {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            width: auto;
+            padding: 0;
+            background: none;
+        }
+        
+        .close-btn:hover {
+            color: #000;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
         @media (max-width: 768px) {
             .form-row, .device-info {
                 grid-template-columns: 1fr;
@@ -211,6 +295,11 @@
             
             h1 {
                 font-size: 1.8em;
+            }
+            
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
             }
         }
     </style>
@@ -229,10 +318,10 @@
                         <input type="text" id="nombre_equipo" required>
                     </div>
                     <div class="form-group">
-                        <label>🔌 Tipo de Acceso *</label>
+                        <label> Tipo de Acceso *</label>
                         <select id="tipo_acceso" required>
                             <option value="AnyDesk">🖥️ AnyDesk</option>
-                            <option value="RustDesk"> RustDesk</option>
+                            <option value="RustDesk">💻 RustDesk</option>
                             <option value="AirDroid">📱 AirDroid</option>
                         </select>
                     </div>
@@ -243,8 +332,8 @@
                         <input type="text" id="identificador" required>
                     </div>
                     <div class="form-group">
-                        <label> Contraseña *</label>
-                        <input type="text" id="contrasena" required>
+                        <label> Contraseña (Opcional)</label>
+                        <input type="text" id="contrasena">
                     </div>
                 </div>
                 <div class="form-group">
@@ -261,6 +350,48 @@
             <div id="devicesList">
                 <div class="loading">⏳ Cargando dispositivos...</div>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edición -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>✏️ Editar Equipo 🖥️</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="editForm">
+                <input type="hidden" id="edit_id">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>💻 Nombre del Equipo *</label>
+                        <input type="text" id="edit_nombre_equipo" required>
+                    </div>
+                    <div class="form-group">
+                        <label>🔌 Tipo de Acceso *</label>
+                        <select id="edit_tipo_acceso" required>
+                            <option value="AnyDesk">️ AnyDesk</option>
+                            <option value="RustDesk">💻 RustDesk</option>
+                            <option value="AirDroid"> AirDroid</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label> ID (AnyDesk/RustDesk) o Usuario (AirDroid) *</label>
+                        <input type="text" id="edit_identificador" required>
+                    </div>
+                    <div class="form-group">
+                        <label>🔒 Contraseña (Opcional)</label>
+                        <input type="text" id="edit_contrasena">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>📝 Notas (Opcional)</label>
+                    <textarea id="edit_notas" rows="2"></textarea>
+                </div>
+                <button type="submit">💾 Actualizar Equipo ️</button>
+            </form>
         </div>
     </div>
 
@@ -295,10 +426,13 @@
         function displayDevices(devices) {
             const html = devices.map(device => `
                 <div class="device-card">
-                    <button class="delete-btn" onclick="deleteDevice(${device.id})">🗑️ Eliminar</button>
+                    <div class="action-buttons">
+                        <button class="edit-btn" onclick="openEditModal(${device.id}, '${device.nombre_equipo}', '${device.tipo_acceso}', '${device.identificador}', '${device.contrasena || ''}', '${device.notas || ''}')">✏️ Editar</button>
+                        <button class="delete-btn" onclick="deleteDevice(${device.id})">🗑️ Eliminar</button>
+                    </div>
                     <div class="device-header">
                         <div class="device-name">🖥️ ${device.nombre_equipo}</div>
-                        <span class="badge badge-${device.tipo_acceso.toLowerCase()}">${device.tipo_acceso === 'AnyDesk' ? '️' : device.tipo_acceso === 'RustDesk' ? '💻' : ''} ${device.tipo_acceso}</span>
+                        <span class="badge badge-${device.tipo_acceso.toLowerCase()}">${device.tipo_acceso === 'AnyDesk' ? '🖥️' : device.tipo_acceso === 'RustDesk' ? '💻' : ''} ${device.tipo_acceso}</span>
                     </div>
                     <div class="device-info">
                         <div class="info-item">
@@ -307,7 +441,7 @@
                         </div>
                         <div class="info-item">
                             <span class="info-label">🔒 Contraseña:</span>
-                            <span class="info-value" onclick="copyToClipboard('${device.contrasena}')">${device.contrasena} 📋</span>
+                            <span class="info-value" onclick="copyToClipboard('${device.contrasena || ''}')">${device.contrasena || 'Sin contraseña'} 📋</span>
                         </div>
                     </div>
                     ${device.notas ? `<div class="notes">📝 ${device.notas}</div>` : ''}
@@ -332,10 +466,59 @@
             const { error } = await supabase.from('dispositivos').insert([device]);
             
             if (error) {
-                alert(' Error al guardar: ' + error.message);
+                alert('❌ Error al guardar: ' + error.message);
             } else {
                 document.getElementById('deviceForm').reset();
                 loadDevices();
+                alert('✅ Equipo guardado exitosamente');
+            }
+        });
+        
+        // Abrir modal de edición
+        function openEditModal(id, nombre, tipo, identificador, contrasena, notas) {
+            document.getElementById('edit_id').value = id;
+            document.getElementById('edit_nombre_equipo').value = nombre;
+            document.getElementById('edit_tipo_acceso').value = tipo;
+            document.getElementById('edit_identificador').value = identificador;
+            document.getElementById('edit_contrasena').value = contrasena;
+            document.getElementById('edit_notas').value = notas;
+            document.getElementById('editModal').style.display = 'block';
+        }
+        
+        // Cerrar modal
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+        
+        // Cerrar modal al hacer clic fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('editModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+        
+        // Actualizar dispositivo
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const id = document.getElementById('edit_id').value;
+            const device = {
+                nombre_equipo: document.getElementById('edit_nombre_equipo').value,
+                tipo_acceso: document.getElementById('edit_tipo_acceso').value,
+                identificador: document.getElementById('edit_identificador').value,
+                contrasena: document.getElementById('edit_contrasena').value,
+                notas: document.getElementById('edit_notas').value
+            };
+            
+            const { error } = await supabase.from('dispositivos').update(device).eq('id', id);
+            
+            if (error) {
+                alert('❌ Error al actualizar: ' + error.message);
+            } else {
+                closeModal();
+                loadDevices();
+                alert('✅ Equipo actualizado exitosamente');
             }
         });
         
@@ -345,12 +528,19 @@
                 const { error } = await supabase.from('dispositivos').delete().eq('id', id);
                 if (!error) {
                     loadDevices();
+                    alert('✅ Equipo eliminado exitosamente');
+                } else {
+                    alert('❌ Error al eliminar: ' + error.message);
                 }
             }
         }
         
         // Copiar al portapapeles
         function copyToClipboard(text) {
+            if (!text) {
+                alert('️ No hay texto para copiar');
+                return;
+            }
             navigator.clipboard.writeText(text).then(() => {
                 alert('✅ Copiado: ' + text);
             });
