@@ -20,9 +20,9 @@
         .badge-anydesk { background: #ef4444; }
         .badge-rustdesk { background: #3b82f6; }
         .badge-airdroid { background: #10b981; }
-        .device-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9em; }
-        .info-item { background: white; padding: 8px; border-radius: 6px; display: flex; justify-content: space-between; }
-        .info-value { cursor: pointer; color: #667eea; font-weight: 600; }
+        .device-info { display: grid; grid-template-columns: 1fr; gap: 10px; font-size: 0.9em; }
+        .info-item { background: white; padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .info-value { cursor: pointer; color: #667eea; font-weight: 600; padding: 5px 10px; background: #e0e7ff; border-radius: 4px; }
         .delete-btn { background: #ef4444; width: auto; padding: 5px 15px; font-size: 0.85em; position: absolute; top: 15px; right: 15px; }
         .delete-btn:hover { background: #dc2626; }
         .status { padding: 15px; margin-bottom: 20px; border-radius: 8px; font-weight: 600; text-align: center; }
@@ -56,7 +56,6 @@
     </div>
 
     <script>
-        // ✅ URL CORREGIDA
         const URL = 'https://ebcmehgzyvzgdfjwhuif.supabase.co';
         const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViY21laGd6eXZ6Z2RmandodWlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1MDgwMjUsImV4cCI6MjEwMzA4NDAyNX0.ACt5JbcBe0b3i48pQKZ9vr9L76-FsVbTJjtnEH_0lSc';
         
@@ -92,7 +91,9 @@
                             '<span class="badge badge-' + d.tipo_acceso.toLowerCase() + '">' + d.tipo_acceso + '</span>' +
                         '</div>' +
                         '<div class="device-info">' +
-                            '<div class="info-item"><span>' + (d.tipo_acceso === 'AirDroid' ? '👤 Usuario:' : '🆔 ID:') + '</span> <span class="info-value" onclick="copiar(\'' + d.identificador + '\')">' + d.identificador + ' 📋</span></div>' +
+                            '<div class="info-item"><span style="font-weight:600; color:#667eea;">' + 
+                            (d.tipo_acceso === 'AnyDesk' ? '🖥️ AnyDesk - ID:' : d.tipo_acceso === 'RustDesk' ? '💻 RustDesk - ID:' : ' AirDroid - Usuario:') + 
+                            '</span> <span class="info-value" onclick="copiar(\'' + d.identificador + '\')">' + d.identificador + ' 📋</span></div>' +
                             '<div class="info-item"><span>🔒 Contraseña:</span> <span class="info-value" onclick="copiar(\'' + (d.contrasena || '') + '\')">' + (d.contrasena || 'Sin contraseña') + ' 📋</span></div>' +
                         '</div>' +
                         (d.notas ? '<div style="margin-top:10px; padding:8px; background:#fef3c7; border-radius:6px; font-size:0.9em; color:#92400e;">📝 ' + d.notas + '</div>' : '') +
@@ -150,7 +151,6 @@
             navigator.clipboard.writeText(texto).then(() => alert('✅ Copiado: ' + texto));
         }
         
-        // Iniciar
         cargar();
     </script>
 </body>
