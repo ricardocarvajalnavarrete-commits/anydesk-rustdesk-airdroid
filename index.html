@@ -1,75 +1,107 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Gestor Remoto</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Accesos Remotos</title>
     <style>
-        body { font-family: Arial; background: linear-gradient(135deg, #667eea, #764ba2); padding: 20px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
-        h1 { color: white; text-align: center; }
-        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0 15px 0; }
-        button { background: #667eea; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; width: 100%; }
-        .device { background: #f5f5f5; padding: 15px; margin: 10px 0; border-left: 4px solid #667eea; border-radius: 5px; }
-        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
-        .success { background: #d1fae5; color: #065f46; }
-        .error { background: #fee2e2; color: #991b1b; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #667eea, #764ba2); padding: 20px; min-height: 100vh; margin: 0; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        h1 { color: white; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 30px; }
+        h2 { color: #333; border-bottom: 3px solid #667eea; padding-bottom: 10px; margin-bottom: 20px; }
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; box-sizing: border-box; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; }
+        button { background: #667eea; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: 600; }
+        button:hover { background: #5568d3; }
+        .device { background: #f8f9fa; padding: 15px; margin: 15px 0; border-left: 5px solid #667eea; border-radius: 8px; position: relative; }
+        .device-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .device-name { font-size: 1.2em; font-weight: bold; color: #333; }
+        .badge { padding: 4px 10px; border-radius: 15px; color: white; font-size: 0.8em; font-weight: 600; }
+        .badge-anydesk { background: #ef4444; }
+        .badge-rustdesk { background: #3b82f6; }
+        .badge-airdroid { background: #10b981; }
+        .device-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.9em; }
+        .info-item { background: white; padding: 8px; border-radius: 6px; display: flex; justify-content: space-between; }
+        .info-value { cursor: pointer; color: #667eea; font-weight: 600; }
+        .delete-btn { background: #ef4444; width: auto; padding: 5px 15px; font-size: 0.85em; position: absolute; top: 15px; right: 15px; }
+        .delete-btn:hover { background: #dc2626; }
+        .status { padding: 15px; margin-bottom: 20px; border-radius: 8px; font-weight: 600; text-align: center; }
+        .success { background: #d1fae5; color: #065f46; border: 2px solid #10b981; }
+        .error { background: #fee2e2; color: #991b1b; border: 2px solid #ef4444; }
+        .testing { background: #dbeafe; color: #1e40af; border: 2px solid #3b82f6; }
+        .empty { text-align: center; color: #999; padding: 30px; }
     </style>
 </head>
 <body>
-    <h1>🖥️ Gestor de Accesos Remotos</h1>
+    <h1>🖥️ Gestor de Accesos Remotos 💻</h1>
     <div class="container">
-        <div id="status" class="status">🔄 Conectando...</div>
+        <div id="status" class="status testing">🔄 Conectando a Supabase...</div>
         
-        <h2>📝 Nuevo Equipo</h2>
+        <h2>📝 Registrar Nuevo Equipo</h2>
         <form id="form">
-            <input id="nombre" placeholder="Nombre del equipo *" required>
+            <input id="nombre" placeholder="Nombre del Equipo *" required>
             <select id="tipo" required>
-                <option value="AnyDesk">AnyDesk</option>
-                <option value="RustDesk">RustDesk</option>
-                <option value="AirDroid">AirDroid</option>
+                <option value="AnyDesk">🖥️ AnyDesk</option>
+                <option value="RustDesk">💻 RustDesk</option>
+                <option value="AirDroid">📱 AirDroid</option>
             </select>
-            <input id="id" placeholder="ID o Usuario *" required>
-            <input id="pass" placeholder="Contraseña (opcional)">
-            <textarea id="notas" placeholder="Notas"></textarea>
-            <button type="submit">💾 Guardar</button>
+            <input id="id" placeholder="ID (AnyDesk/RustDesk) o Usuario (AirDroid) *" required>
+            <input id="pass" placeholder="Contraseña (Opcional)">
+            <textarea id="notas" placeholder="Notas (Opcional)" rows="2"></textarea>
+            <button type="submit">💾 Guardar Equipo</button>
         </form>
         
-        <h2> Equipos</h2>
+        <h2>📋 Equipos Registrados</h2>
         <div id="lista">Cargando...</div>
     </div>
 
     <script>
-        const URL = 'https://ebcmehqzyvzgdjfwhuif.supabase.co';
+        // ✅ URL CORREGIDA
+        const URL = 'https://ebcmehgzyvzgdfjwhuif.supabase.co';
         const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViY21laGd6eXZ6Z2RmandodWlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1MDgwMjUsImV4cCI6MjEwMzA4NDAyNX0.ACt5JbcBe0b3i48pQKZ9vr9L76-FsVbTJjtnEH_0lSc';
         
         const headers = {
             'apikey': KEY,
             'Authorization': 'Bearer ' + KEY,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
         };
         
         async function cargar() {
             try {
-                const r = await fetch(URL + '/rest/v1/dispositivos?select=*', { headers });
-                if (!r.ok) throw new Error('Error ' + r.status);
+                const r = await fetch(URL + '/rest/v1/dispositivos?select=*&order=created_at.desc', { headers });
+                if (!r.ok) {
+                    const err = await r.json().catch(() => ({}));
+                    throw new Error(err.message || 'Error HTTP ' + r.status);
+                }
                 const data = await r.json();
-                document.getElementById('status').innerHTML = '✅ Conectado (' + data.length + ' equipos)';
+                
+                document.getElementById('status').innerHTML = '✅ Conectado correctamente. ' + data.length + ' equipo(s) encontrado(s).';
                 document.getElementById('status').className = 'status success';
                 
                 if (data.length === 0) {
-                    document.getElementById('lista').innerHTML = '<p>Sin equipos</p>';
+                    document.getElementById('lista').innerHTML = '<div class="empty">🖥️ No hay equipos registrados aún</div>';
                     return;
                 }
                 
                 document.getElementById('lista').innerHTML = data.map(d => 
-                    '<div class="device"><b>' + d.nombre_equipo + '</b> (' + d.tipo_acceso + ')<br>' +
-                    'ID: ' + d.identificador + '<br>' +
-                    '<button onclick="eliminar(' + d.id + ')">🗑️ Eliminar</button></div>'
+                    '<div class="device">' +
+                        '<button class="delete-btn" onclick="eliminar(' + d.id + ')">🗑️ Eliminar</button>' +
+                        '<div class="device-header">' +
+                            '<span class="device-name">🖥️ ' + d.nombre_equipo + '</span>' +
+                            '<span class="badge badge-' + d.tipo_acceso.toLowerCase() + '">' + d.tipo_acceso + '</span>' +
+                        '</div>' +
+                        '<div class="device-info">' +
+                            '<div class="info-item"><span>' + (d.tipo_acceso === 'AirDroid' ? '👤 Usuario:' : '🆔 ID:') + '</span> <span class="info-value" onclick="copiar(\'' + d.identificador + '\')">' + d.identificador + ' 📋</span></div>' +
+                            '<div class="info-item"><span>🔒 Contraseña:</span> <span class="info-value" onclick="copiar(\'' + (d.contrasena || '') + '\')">' + (d.contrasena || 'Sin contraseña') + ' 📋</span></div>' +
+                        '</div>' +
+                        (d.notas ? '<div style="margin-top:10px; padding:8px; background:#fef3c7; border-radius:6px; font-size:0.9em; color:#92400e;">📝 ' + d.notas + '</div>' : '') +
+                    '</div>'
                 ).join('');
             } catch (e) {
-                document.getElementById('status').innerHTML = '❌ ' + e.message;
+                document.getElementById('status').innerHTML = '❌ Error de conexión: ' + e.message;
                 document.getElementById('status').className = 'status error';
+                document.getElementById('lista').innerHTML = '<div class="empty">No se pudieron cargar los datos.</div>';
             }
         }
         
@@ -90,29 +122,35 @@
                     body: JSON.stringify([data])
                 });
                 if (!r.ok) throw new Error('Error al guardar');
-                alert('✅ Guardado');
+                alert('✅ Equipo guardado exitosamente');
                 document.getElementById('form').reset();
                 cargar();
             } catch (e) {
-                alert('❌ ' + e.message);
+                alert('❌ Error: ' + e.message);
             }
         });
         
         async function eliminar(id) {
-            if (!confirm('¿Eliminar?')) return;
+            if (!confirm('¿Estás seguro de eliminar este registro?')) return;
             try {
                 const r = await fetch(URL + '/rest/v1/dispositivos?id=eq.' + id, {
                     method: 'DELETE',
                     headers: headers
                 });
-                if (!r.ok) throw new Error('Error');
-                alert('✅ Eliminado');
+                if (!r.ok) throw new Error('Error al eliminar');
+                alert('✅ Equipo eliminado');
                 cargar();
             } catch (e) {
-                alert('❌ ' + e.message);
+                alert('❌ Error: ' + e.message);
             }
         }
         
+        function copiar(texto) {
+            if (!texto) { alert('⚠️ No hay texto para copiar'); return; }
+            navigator.clipboard.writeText(texto).then(() => alert('✅ Copiado: ' + texto));
+        }
+        
+        // Iniciar
         cargar();
     </script>
 </body>
