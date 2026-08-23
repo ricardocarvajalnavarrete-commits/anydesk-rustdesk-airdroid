@@ -224,7 +224,37 @@
             color: #999;
         }
         
-        /* Modal de edición */
+        .error-box {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #991b1b;
+        }
+        
+        .error-box h3 {
+            margin-bottom: 10px;
+        }
+        
+        .success-box {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #065f46;
+        }
+        
+        .status-box {
+            background: #dbeafe;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #1e40af;
+        }
+        
         .modal {
             display: none;
             position: fixed;
@@ -306,7 +336,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>🖥️ Gestor de Accesos Remotos 💻</h1>
+        <h1>🖥️ Gestor de Accesos Remotos </h1>
+        
+        <!-- Mensajes de estado -->
+        <div id="statusMessages"></div>
         
         <!-- Formulario -->
         <div class="card">
@@ -314,11 +347,11 @@
             <form id="deviceForm">
                 <div class="form-row">
                     <div class="form-group">
-                        <label>💻 Nombre del Equipo *</label>
+                        <label> Nombre del Equipo *</label>
                         <input type="text" id="nombre_equipo" required>
                     </div>
                     <div class="form-group">
-                        <label> Tipo de Acceso *</label>
+                        <label>🔌 Tipo de Acceso *</label>
                         <select id="tipo_acceso" required>
                             <option value="AnyDesk">🖥️ AnyDesk</option>
                             <option value="RustDesk">💻 RustDesk</option>
@@ -328,11 +361,11 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>🆔 ID (AnyDesk/RustDesk) o Usuario (AirDroid) *</label>
+                        <label> ID (AnyDesk/RustDesk) o Usuario (AirDroid) *</label>
                         <input type="text" id="identificador" required>
                     </div>
                     <div class="form-group">
-                        <label> Contraseña (Opcional)</label>
+                        <label>🔒 Contraseña (Opcional)</label>
                         <input type="text" id="contrasena">
                     </div>
                 </div>
@@ -340,7 +373,7 @@
                     <label>📝 Notas (Opcional)</label>
                     <textarea id="notas" rows="2"></textarea>
                 </div>
-                <button type="submit">💾 Guardar Equipo 🖥️</button>
+                <button type="submit"> Guardar Equipo 🖥️</button>
             </form>
         </div>
         
@@ -357,7 +390,7 @@
     <div id="editModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>✏️ Editar Equipo 🖥️</h2>
+                <h2>️ Editar Equipo 🖥️</h2>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <form id="editForm">
@@ -370,15 +403,15 @@
                     <div class="form-group">
                         <label>🔌 Tipo de Acceso *</label>
                         <select id="edit_tipo_acceso" required>
-                            <option value="AnyDesk">️ AnyDesk</option>
+                            <option value="AnyDesk">🖥️ AnyDesk</option>
                             <option value="RustDesk">💻 RustDesk</option>
-                            <option value="AirDroid"> AirDroid</option>
+                            <option value="AirDroid">📱 AirDroid</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label> ID (AnyDesk/RustDesk) o Usuario (AirDroid) *</label>
+                        <label>🆔 ID (AnyDesk/RustDesk) o Usuario (AirDroid) *</label>
                         <input type="text" id="edit_identificador" required>
                     </div>
                     <div class="form-group">
@@ -396,31 +429,88 @@
     </div>
 
     <script>
-        // Configuración de Supabase
+        // ⚠️ CONFIGURACIÓN - REEMPLAZA ESTOS VALORES
         const SUPABASE_URL = 'https://ebcmehqzyvzgdjfwhuif.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_4QS8UET1F-ZuA7e5DpWSgg_TGAOz1TC'; // Reemplaza con tu clave completa
+        const SUPABASE_KEY = 'sb_publishable_4QS8UET1F-ZuA7e5DpWSgg_TGAOz1TC'; // ← REEMPLAZA ESTO
+        
+        // Verificar configuración
+        function checkConfiguration() {
+            const statusDiv = document.getElementById('statusMessages');
+            
+            if (SUPABASE_KEY === 'TU_CLAVE_PUBLISHABLE_AQUI' || SUPABASE_KEY.includes('...')) {
+                statusDiv.innerHTML = `
+                    <div class="error-box">
+                        <h3>⚠️ Error de Configuración</h3>
+                        <p>La SUPABASE_KEY no está configurada correctamente.</p>
+                        <p><strong>Clave actual:</strong> ${SUPABASE_KEY}</p>
+                        <p>Debes reemplazarla con tu clave real de Supabase (empieza con "sb_publishable_")</p>
+                    </div>
+                `;
+                return false;
+            }
+            
+            statusDiv.innerHTML = `
+                <div class="status-box">
+                    <h3>✅ Configuración OK</h3>
+                    <p>URL: ${SUPABASE_URL}</p>
+                    <p>Conectando a Supabase...</p>
+                </div>
+            `;
+            return true;
+        }
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         
+        // Mostrar mensajes
+        function showMessage(type, message) {
+            const statusDiv = document.getElementById('statusMessages');
+            const boxClass = type === 'error' ? 'error-box' : type === 'success' ? 'success-box' : 'status-box';
+            statusDiv.innerHTML = `<div class="${boxClass}"><h3>${message}</h3></div>`;
+            setTimeout(() => { statusDiv.innerHTML = ''; }, 5000);
+        }
+        
         // Cargar dispositivos al iniciar
         async function loadDevices() {
-            const { data, error } = await supabase
-                .from('dispositivos')
-                .select('*')
-                .order('created_at', { ascending: false });
-            
-            if (error) {
-                console.error('Error:', error);
-                document.getElementById('devicesList').innerHTML = '<div class="empty-state">❌ Error al cargar dispositivos</div>';
-                return;
+            try {
+                const { data, error } = await supabase
+                    .from('dispositivos')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) {
+                    console.error('Error al cargar:', error);
+                    document.getElementById('devicesList').innerHTML = `
+                        <div class="error-box">
+                            <h3>❌ Error al cargar dispositivos</h3>
+                            <p><strong>Código:</strong> ${error.code}</p>
+                            <p><strong>Mensaje:</strong> ${error.message}</p>
+                            <p><strong>Detalle:</strong> ${error.details || 'N/A'}</p>
+                            <p style="margin-top: 10px;"><strong>Posibles causas:</strong></p>
+                            <ul style="margin-left: 20px;">
+                                <li>La tabla 'dispositivos' no existe en Supabase</li>
+                                <li>La SUPABASE_KEY es incorrecta</li>
+                                <li>No ejecutaste el SQL para crear la tabla</li>
+                            </ul>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                if (data.length === 0) {
+                    document.getElementById('devicesList').innerHTML = '<div class="empty-state">🖥️ No hay equipos registrados aún</div>';
+                    return;
+                }
+                
+                displayDevices(data);
+            } catch (err) {
+                console.error('Error inesperado:', err);
+                document.getElementById('devicesList').innerHTML = `
+                    <div class="error-box">
+                        <h3>❌ Error inesperado</h3>
+                        <p>${err.message}</p>
+                    </div>
+                `;
             }
-            
-            if (data.length === 0) {
-                document.getElementById('devicesList').innerHTML = '<div class="empty-state">️ No hay equipos registrados aún</div>';
-                return;
-            }
-            
-            displayDevices(data);
         }
         
         function displayDevices(devices) {
@@ -432,15 +522,15 @@
                     </div>
                     <div class="device-header">
                         <div class="device-name">🖥️ ${device.nombre_equipo}</div>
-                        <span class="badge badge-${device.tipo_acceso.toLowerCase()}">${device.tipo_acceso === 'AnyDesk' ? '🖥️' : device.tipo_acceso === 'RustDesk' ? '💻' : ''} ${device.tipo_acceso}</span>
+                        <span class="badge badge-${device.tipo_acceso.toLowerCase()}">${device.tipo_acceso}</span>
                     </div>
                     <div class="device-info">
                         <div class="info-item">
                             <span class="info-label">${device.tipo_acceso === 'AirDroid' ? '👤 Usuario:' : '🆔 ID:'}</span>
-                            <span class="info-value" onclick="copyToClipboard('${device.identificador}')">${device.identificador} </span>
+                            <span class="info-value" onclick="copyToClipboard('${device.identificador}')">${device.identificador} 📋</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">🔒 Contraseña:</span>
+                            <span class="info-label"> Contraseña:</span>
                             <span class="info-value" onclick="copyToClipboard('${device.contrasena || ''}')">${device.contrasena || 'Sin contraseña'} 📋</span>
                         </div>
                     </div>
@@ -463,14 +553,17 @@
                 notas: document.getElementById('notas').value
             };
             
-            const { error } = await supabase.from('dispositivos').insert([device]);
+            console.log('Guardando dispositivo:', device);
+            
+            const { data, error } = await supabase.from('dispositivos').insert([device]).select();
             
             if (error) {
-                alert('❌ Error al guardar: ' + error.message);
+                console.error('Error al guardar:', error);
+                showMessage('error', `❌ Error al guardar: ${error.message}`);
             } else {
                 document.getElementById('deviceForm').reset();
+                showMessage('success', '✅ Equipo guardado exitosamente');
                 loadDevices();
-                alert('✅ Equipo guardado exitosamente');
             }
         });
         
@@ -514,11 +607,11 @@
             const { error } = await supabase.from('dispositivos').update(device).eq('id', id);
             
             if (error) {
-                alert('❌ Error al actualizar: ' + error.message);
+                showMessage('error', `❌ Error al actualizar: ${error.message}`);
             } else {
                 closeModal();
+                showMessage('success', '✅ Equipo actualizado exitosamente');
                 loadDevices();
-                alert('✅ Equipo actualizado exitosamente');
             }
         });
         
@@ -527,10 +620,10 @@
             if (confirm('¿Estás seguro de eliminar este registro?')) {
                 const { error } = await supabase.from('dispositivos').delete().eq('id', id);
                 if (!error) {
+                    showMessage('success', '✅ Equipo eliminado exitosamente');
                     loadDevices();
-                    alert('✅ Equipo eliminado exitosamente');
                 } else {
-                    alert('❌ Error al eliminar: ' + error.message);
+                    showMessage('error', `❌ Error al eliminar: ${error.message}`);
                 }
             }
         }
@@ -538,15 +631,16 @@
         // Copiar al portapapeles
         function copyToClipboard(text) {
             if (!text) {
-                alert('️ No hay texto para copiar');
+                showMessage('error', '️ No hay texto para copiar');
                 return;
             }
             navigator.clipboard.writeText(text).then(() => {
-                alert('✅ Copiado: ' + text);
+                showMessage('success', `✅ Copiado: ${text}`);
             });
         }
         
-        // Cargar al iniciar
+        // Inicializar
+        checkConfiguration();
         loadDevices();
     </script>
 </body>
