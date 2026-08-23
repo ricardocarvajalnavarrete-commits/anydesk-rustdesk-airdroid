@@ -1,499 +1,119 @@
+
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Accesos Remotos</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Gestor Remoto</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container { max-width: 900px; margin: 0 auto; }
-        h1 {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-        .card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        .card h2 {
-            color: #333;
-            margin-bottom: 20px;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-        }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: #555; font-weight: 600; }
-        input, select, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        button {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-        }
-        button:hover { background: #5568d3; }
-        .device-card {
-            background: #f8f9fa;
-            border-left: 5px solid #667eea;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            position: relative;
-        }
-        .device-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .device-name { font-size: 1.3em; font-weight: bold; color: #333; }
-        .badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            color: white;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-        .badge-anydesk { background: #ef4444; }
-        .badge-rustdesk { background: #3b82f6; }
-        .badge-airdroid { background: #10b981; }
-        .device-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        .info-item {
-            background: white;
-            padding: 10px;
-            border-radius: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .info-label { font-weight: 600; color: #666; }
-        .info-value {
-            color: #333;
-            cursor: pointer;
-            padding: 5px 10px;
-            background: #e0e7ff;
-            border-radius: 4px;
-        }
-        .action-buttons { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
-        .edit-btn, .delete-btn {
-            border: none;
-            padding: 5px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.85em;
-            width: auto;
-            color: white;
-        }
-        .edit-btn { background: #f59e0b; }
-        .delete-btn { background: #ef4444; }
-        .notes {
-            margin-top: 10px;
-            padding: 10px;
-            background: #fef3c7;
-            border-radius: 6px;
-            font-size: 0.9em;
-            color: #92400e;
-        }
-        .loading { text-align: center; padding: 20px; color: #666; }
-        .empty-state { text-align: center; padding: 40px; color: #999; }
-        .debug-panel {
-            background: #1e1e1e;
-            color: #00ff00;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .debug-panel .log-entry { margin-bottom: 8px; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        .debug-panel .error { color: #ff4444; }
-        .debug-panel .success { color: #00ff00; }
-        .debug-panel .warning { color: #ffaa00; }
-        .debug-panel .info { color: #00aaff; }
-        .toggle-debug {
-            background: #333;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-bottom: 10px;
-            width: auto;
-            font-size: 14px;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0; top: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-        }
-        .close-btn {
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            background: none;
-            border: none;
-            width: auto;
-            padding: 0;
-        }
-        @media (max-width: 768px) {
-            .form-row, .device-info { grid-template-columns: 1fr; }
-            h1 { font-size: 1.8em; }
-        }
+        body { font-family: Arial; background: linear-gradient(135deg, #667eea, #764ba2); padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        h1 { color: white; text-align: center; }
+        input, select, textarea { width: 100%; padding: 10px; margin: 5px 0 15px 0; }
+        button { background: #667eea; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; width: 100%; }
+        .device { background: #f5f5f5; padding: 15px; margin: 10px 0; border-left: 4px solid #667eea; border-radius: 5px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
     </style>
 </head>
 <body>
+    <h1>🖥️ Gestor de Accesos Remotos</h1>
     <div class="container">
-        <h1>🖥️ Gestor de Accesos Remotos 💻</h1>
+        <div id="status" class="status">🔄 Conectando...</div>
         
-        <button class="toggle-debug" onclick="toggleDebug()">🔍 Mostrar/Ocultar Diagnóstico</button>
-        <div id="debugPanel" class="debug-panel" style="display: none;">
-            <div style="color: white; font-weight: bold; margin-bottom: 10px;">📋 Log de Conexión:</div>
-            <div id="debugLogs"></div>
-        </div>
+        <h2>📝 Nuevo Equipo</h2>
+        <form id="form">
+            <input id="nombre" placeholder="Nombre del equipo *" required>
+            <select id="tipo" required>
+                <option value="AnyDesk">AnyDesk</option>
+                <option value="RustDesk">RustDesk</option>
+                <option value="AirDroid">AirDroid</option>
+            </select>
+            <input id="id" placeholder="ID o Usuario *" required>
+            <input id="pass" placeholder="Contraseña (opcional)">
+            <textarea id="notas" placeholder="Notas"></textarea>
+            <button type="submit">💾 Guardar</button>
+        </form>
         
-        <div class="card">
-            <h2>📝 Registrar Nuevo Equipo 🖥️</h2>
-            <form id="deviceForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>💻 Nombre del Equipo *</label>
-                        <input type="text" id="nombre_equipo" required>
-                    </div>
-                    <div class="form-group">
-                        <label>🔌 Tipo de Acceso *</label>
-                        <select id="tipo_acceso" required>
-                            <option value="AnyDesk">🖥️ AnyDesk</option>
-                            <option value="RustDesk">💻 RustDesk</option>
-                            <option value="AirDroid">📱 AirDroid</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>🆔 ID (AnyDesk/RustDesk) o Usuario (AirDroid) *</label>
-                        <input type="text" id="identificador" required>
-                    </div>
-                    <div class="form-group">
-                        <label>🔒 Contraseña (Opcional)</label>
-                        <input type="text" id="contrasena">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label> Notas (Opcional)</label>
-                    <textarea id="notas" rows="2"></textarea>
-                </div>
-                <button type="submit">💾 Guardar Equipo 🖥️</button>
-            </form>
-        </div>
-        
-        <div class="card">
-            <h2>📋 Equipos Registrados 💻</h2>
-            <div id="devicesList">
-                <div class="loading">⏳ Cargando dispositivos...</div>
-            </div>
-        </div>
-    </div>
-
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>✏️ Editar Equipo 🖥️</h2>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-            </div>
-            <form id="editForm">
-                <input type="hidden" id="edit_id">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>💻 Nombre del Equipo *</label>
-                        <input type="text" id="edit_nombre_equipo" required>
-                    </div>
-                    <div class="form-group">
-                        <label>🔌 Tipo de Acceso *</label>
-                        <select id="edit_tipo_acceso" required>
-                            <option value="AnyDesk">🖥️ AnyDesk</option>
-                            <option value="RustDesk">💻 RustDesk</option>
-                            <option value="AirDroid">📱 AirDroid</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>🆔 ID o Usuario *</label>
-                        <input type="text" id="edit_identificador" required>
-                    </div>
-                    <div class="form-group">
-                        <label>🔒 Contraseña (Opcional)</label>
-                        <input type="text" id="edit_contrasena">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>📝 Notas (Opcional)</label>
-                    <textarea id="edit_notas" rows="2"></textarea>
-                </div>
-                <button type="submit">💾 Actualizar Equipo ️</button>
-            </form>
-        </div>
+        <h2> Equipos</h2>
+        <div id="lista">Cargando...</div>
     </div>
 
     <script>
-        // ⚠️ CONFIGURACIÓN - REEMPLAZA ESTOS VALORES CON TUS DATOS REALES
-        const SUPABASE_URL = 'https://ebcmehqzyvzgdjfwhuif.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViY21laGd6eXZ6Z2RmandodWlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1MDgwMjUsImV4cCI6MjEwMzA4NDAyNX0.ACt5JbcBe0b3i48pQKZ9vr9L76-FsVbTJjtnEH_0lSc';        
-        // Sistema de logs
-        function log(message, type = 'info') {
-            const logsDiv = document.getElementById('debugLogs');
-            const timestamp = new Date().toLocaleTimeString();
-            const entry = document.createElement('div');
-            entry.className = `log-entry ${type}`;
-            entry.innerHTML = `[${timestamp}] ${message}`;
-            logsDiv.appendChild(entry);
-            console.log(`[${type}] ${message}`);
-        }
+        const URL = 'https://ebcmehqzyvzgdjfwhuif.supabase.co';
+        const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImViY21laGd6eXZ6Z2RmandodWlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1MDgwMjUsImV4cCI6MjEwMzA4NDAyNX0.ACt5JbcBe0b3i48pQKZ9vr9L76-FsVbTJjtnEH_0lSc';
         
-        function toggleDebug() {
-            const panel = document.getElementById('debugPanel');
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-        }
+        const headers = {
+            'apikey': KEY,
+            'Authorization': 'Bearer ' + KEY,
+            'Content-Type': 'application/json'
+        };
         
-        log('🚀 Iniciando aplicación...', 'info');
-        log(`URL: ${SUPABASE_URL}`, 'info');
-        
-        if (SUPABASE_KEY.includes('TU_CLAVE') || SUPABASE_KEY.includes('...')) {
-            log('❌ ERROR: La SUPABASE_KEY no está configurada', 'error');
-            document.getElementById('devicesList').innerHTML = `
-                <div style="background: #fee2e2; border: 2px solid #ef4444; border-radius: 8px; padding: 20px; color: #991b1b;">
-                    <h3>⚠️ Error de Configuración</h3>
-                    <p>La SUPABASE_KEY no está configurada correctamente.</p>
-                    <p><strong>Instrucciones:</strong></p>
-                    <ol style="margin-left: 20px;">
-                        <li>Ve a Supabase → Settings → API Keys</li>
-                        <li>Copia la "Publishable key" completa</li>
-                        <li>Edita el archivo index.html</li>
-                        <li>Reemplaza la línea de SUPABASE_KEY</li>
-                    </ol>
-                </div>
-            `;
-        } else {
-            log('✅ Configuración inicial correcta', 'success');
-        }
-        
-        // ✅ CAMBIO IMPORTANTE: Usar supabaseClient en lugar de supabase
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        log('✅ Cliente Supabase creado', 'success');
-        
-        async function loadDevices() {
-            log('📡 Cargando dispositivos...', 'info');
-            
+        async function cargar() {
             try {
-                const { data, error } = await supabaseClient
-                    .from('dispositivos')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-                
-                if (error) {
-                    log(`❌ Error: ${error.message}`, 'error');
-                    log(`Código: ${error.code}`, 'error');
-                    
-                    document.getElementById('devicesList').innerHTML = `
-                        <div style="background: #fee2e2; border: 2px solid #ef4444; border-radius: 8px; padding: 20px; color: #991b1b;">
-                            <h3>❌ Error al cargar dispositivos</h3>
-                            <p><strong>Error:</strong> ${error.message}</p>
-                            <p><strong>Código:</strong> ${error.code}</p>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                log(`✅ Dispositivos cargados: ${data.length}`, 'success');
+                const r = await fetch(URL + '/rest/v1/dispositivos?select=*', { headers });
+                if (!r.ok) throw new Error('Error ' + r.status);
+                const data = await r.json();
+                document.getElementById('status').innerHTML = '✅ Conectado (' + data.length + ' equipos)';
+                document.getElementById('status').className = 'status success';
                 
                 if (data.length === 0) {
-                    document.getElementById('devicesList').innerHTML = '<div class="empty-state">🖥️ No hay equipos registrados aún</div>';
+                    document.getElementById('lista').innerHTML = '<p>Sin equipos</p>';
                     return;
                 }
                 
-                displayDevices(data);
-            } catch (err) {
-                log(`❌ Error inesperado: ${err.message}`, 'error');
+                document.getElementById('lista').innerHTML = data.map(d => 
+                    '<div class="device"><b>' + d.nombre_equipo + '</b> (' + d.tipo_acceso + ')<br>' +
+                    'ID: ' + d.identificador + '<br>' +
+                    '<button onclick="eliminar(' + d.id + ')">🗑️ Eliminar</button></div>'
+                ).join('');
+            } catch (e) {
+                document.getElementById('status').innerHTML = '❌ ' + e.message;
+                document.getElementById('status').className = 'status error';
             }
         }
         
-        function displayDevices(devices) {
-            const html = devices.map(device => `
-                <div class="device-card">
-                    <div class="action-buttons">
-                        <button class="edit-btn" onclick="openEditModal(${device.id}, '${device.nombre_equipo}', '${device.tipo_acceso}', '${device.identificador}', '${device.contrasena || ''}', '${device.notas || ''}')">✏️ Editar</button>
-                        <button class="delete-btn" onclick="deleteDevice(${device.id})">️ Eliminar</button>
-                    </div>
-                    <div class="device-header">
-                        <div class="device-name">🖥️ ${device.nombre_equipo}</div>
-                        <span class="badge badge-${device.tipo_acceso.toLowerCase()}">${device.tipo_acceso}</span>
-                    </div>
-                    <div class="device-info">
-                        <div class="info-item">
-                            <span class="info-label">${device.tipo_acceso === 'AirDroid' ? '👤 Usuario:' : '🆔 ID:'}</span>
-                            <span class="info-value" onclick="copyToClipboard('${device.identificador}')">${device.identificador} 📋</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label"> Contraseña:</span>
-                            <span class="info-value" onclick="copyToClipboard('${device.contrasena || ''}')">${device.contrasena || 'Sin contraseña'} 📋</span>
-                        </div>
-                    </div>
-                    ${device.notas ? `<div class="notes">📝 ${device.notas}</div>` : ''}
-                </div>
-            `).join('');
-            
-            document.getElementById('devicesList').innerHTML = html;
-        }
-        
-        document.getElementById('deviceForm').addEventListener('submit', async (e) => {
+        document.getElementById('form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
-            const device = {
-                nombre_equipo: document.getElementById('nombre_equipo').value,
-                tipo_acceso: document.getElementById('tipo_acceso').value,
-                identificador: document.getElementById('identificador').value,
-                contrasena: document.getElementById('contrasena').value,
+            const data = {
+                nombre_equipo: document.getElementById('nombre').value,
+                tipo_acceso: document.getElementById('tipo').value,
+                identificador: document.getElementById('id').value,
+                contrasena: document.getElementById('pass').value,
                 notas: document.getElementById('notas').value
             };
             
-            log('💾 Guardando dispositivo...', 'info');
-            
-            const { data, error } = await supabaseClient.from('dispositivos').insert([device]).select();
-            
-            if (error) {
-                log(` Error al guardar: ${error.message}`, 'error');
-                alert('❌ Error al guardar: ' + error.message);
-            } else {
-                log('✅ Dispositivo guardado', 'success');
-                document.getElementById('deviceForm').reset();
-                alert('✅ Equipo guardado exitosamente');
-                loadDevices();
+            try {
+                const r = await fetch(URL + '/rest/v1/dispositivos', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify([data])
+                });
+                if (!r.ok) throw new Error('Error al guardar');
+                alert('✅ Guardado');
+                document.getElementById('form').reset();
+                cargar();
+            } catch (e) {
+                alert('❌ ' + e.message);
             }
         });
         
-        function openEditModal(id, nombre, tipo, identificador, contrasena, notas) {
-            document.getElementById('edit_id').value = id;
-            document.getElementById('edit_nombre_equipo').value = nombre;
-            document.getElementById('edit_tipo_acceso').value = tipo;
-            document.getElementById('edit_identificador').value = identificador;
-            document.getElementById('edit_contrasena').value = contrasena;
-            document.getElementById('edit_notas').value = notas;
-            document.getElementById('editModal').style.display = 'block';
-        }
-        
-        function closeModal() {
-            document.getElementById('editModal').style.display = 'none';
-        }
-        
-        window.onclick = function(event) {
-            const modal = document.getElementById('editModal');
-            if (event.target == modal) {
-                closeModal();
+        async function eliminar(id) {
+            if (!confirm('¿Eliminar?')) return;
+            try {
+                const r = await fetch(URL + '/rest/v1/dispositivos?id=eq.' + id, {
+                    method: 'DELETE',
+                    headers: headers
+                });
+                if (!r.ok) throw new Error('Error');
+                alert('✅ Eliminado');
+                cargar();
+            } catch (e) {
+                alert('❌ ' + e.message);
             }
         }
         
-        document.getElementById('editForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const id = document.getElementById('edit_id').value;
-            const device = {
-                nombre_equipo: document.getElementById('edit_nombre_equipo').value,
-                tipo_acceso: document.getElementById('edit_tipo_acceso').value,
-                identificador: document.getElementById('edit_identificador').value,
-                contrasena: document.getElementById('edit_contrasena').value,
-                notas: document.getElementById('edit_notas').value
-            };
-            
-            const { error } = await supabaseClient.from('dispositivos').update(device).eq('id', id);
-            
-            if (error) {
-                log(`❌ Error al actualizar: ${error.message}`, 'error');
-                alert('❌ Error al actualizar: ' + error.message);
-            } else {
-                log('✅ Dispositivo actualizado', 'success');
-                closeModal();
-                alert('✅ Equipo actualizado exitosamente');
-                loadDevices();
-            }
-        });
-        
-        async function deleteDevice(id) {
-            if (confirm('¿Estás seguro de eliminar este registro?')) {
-                const { error } = await supabaseClient.from('dispositivos').delete().eq('id', id);
-                if (!error) {
-                    log('✅ Dispositivo eliminado', 'success');
-                    alert('✅ Equipo eliminado exitosamente');
-                    loadDevices();
-                } else {
-                    log(`❌ Error al eliminar: ${error.message}`, 'error');
-                    alert('❌ Error al eliminar: ' + error.message);
-                }
-            }
-        }
-        
-        function copyToClipboard(text) {
-            if (!text) {
-                alert('⚠️ No hay texto para copiar');
-                return;
-            }
-            navigator.clipboard.writeText(text).then(() => {
-                alert('✅ Copiado: ' + text);
-            });
-        }
-        
-        log('✅ Aplicación inicializada', 'success');
-        loadDevices();
+        cargar();
     </script>
 </body>
 </html>
