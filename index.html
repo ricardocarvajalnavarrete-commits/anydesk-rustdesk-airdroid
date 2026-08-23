@@ -6,24 +6,14 @@
     <title>Gestor de Accesos Remotos</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
         }
-        
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        
+        .container { max-width: 900px; margin: 0 auto; }
         h1 {
             text-align: center;
             color: white;
@@ -31,7 +21,6 @@
             font-size: 2.5em;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
-        
         .card {
             background: white;
             border-radius: 15px;
@@ -39,45 +28,26 @@
             margin-bottom: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-        
         .card h2 {
             color: #333;
             margin-bottom: 20px;
             border-bottom: 3px solid #667eea;
             padding-bottom: 10px;
         }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #555;
-            font-weight: 600;
-        }
-        
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #555; font-weight: 600; }
         input, select, textarea {
             width: 100%;
             padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 14px;
-            transition: border-color 0.3s;
         }
-        
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #667eea;
         }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         button {
             background: #667eea;
             color: white;
@@ -87,16 +57,9 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
             width: 100%;
         }
-        
-        button:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-        
+        button:hover { background: #5568d3; }
         .device-card {
             background: #f8f9fa;
             border-left: 5px solid #667eea;
@@ -105,20 +68,13 @@
             border-radius: 8px;
             position: relative;
         }
-        
         .device-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
         }
-        
-        .device-name {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #333;
-        }
-        
+        .device-name { font-size: 1.3em; font-weight: bold; color: #333; }
         .badge {
             padding: 5px 12px;
             border-radius: 20px;
@@ -126,18 +82,10 @@
             font-size: 0.85em;
             font-weight: 600;
         }
-        
         .badge-anydesk { background: #ef4444; }
         .badge-rustdesk { background: #3b82f6; }
         .badge-airdroid { background: #10b981; }
-        
-        .device-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        
+        .device-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
         .info-item {
             background: white;
             padding: 10px;
@@ -146,33 +94,15 @@
             justify-content: space-between;
             align-items: center;
         }
-        
-        .info-label {
-            font-weight: 600;
-            color: #666;
-        }
-        
+        .info-label { font-weight: 600; color: #666; }
         .info-value {
             color: #333;
             cursor: pointer;
             padding: 5px 10px;
             background: #e0e7ff;
             border-radius: 4px;
-            transition: background 0.3s;
         }
-        
-        .info-value:hover {
-            background: #c7d2fe;
-        }
-        
-        .action-buttons {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            display: flex;
-            gap: 8px;
-        }
-        
+        .action-buttons { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
         .edit-btn, .delete-btn {
             border: none;
             padding: 5px 15px;
@@ -180,29 +110,10 @@
             cursor: pointer;
             font-size: 0.85em;
             width: auto;
-            transition: all 0.3s;
-        }
-        
-        .edit-btn {
-            background: #f59e0b;
             color: white;
         }
-        
-        .edit-btn:hover {
-            background: #d97706;
-            transform: translateY(-2px);
-        }
-        
-        .delete-btn {
-            background: #ef4444;
-            color: white;
-        }
-        
-        .delete-btn:hover {
-            background: #dc2626;
-            transform: translateY(-2px);
-        }
-        
+        .edit-btn { background: #f59e0b; }
+        .delete-btn { background: #ef4444; }
         .notes {
             margin-top: 10px;
             padding: 10px;
@@ -211,62 +122,46 @@
             font-size: 0.9em;
             color: #92400e;
         }
+        .loading { text-align: center; padding: 20px; color: #666; }
+        .empty-state { text-align: center; padding: 40px; color: #999; }
         
-        .loading {
-            text-align: center;
+        /* Panel de diagnóstico */
+        .debug-panel {
+            background: #1e1e1e;
+            color: #00ff00;
+            border-radius: 10px;
             padding: 20px;
-            color: #666;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-        }
-        
-        .error-box {
-            background: #fee2e2;
-            border: 2px solid #ef4444;
-            border-radius: 8px;
-            padding: 15px;
             margin-bottom: 20px;
-            color: #991b1b;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
         }
+        .debug-panel .log-entry { margin-bottom: 8px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .debug-panel .error { color: #ff4444; }
+        .debug-panel .success { color: #00ff00; }
+        .debug-panel .warning { color: #ffaa00; }
+        .debug-panel .info { color: #00aaff; }
         
-        .error-box h3 {
+        .toggle-debug {
+            background: #333;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
             margin-bottom: 10px;
-        }
-        
-        .success-box {
-            background: #d1fae5;
-            border: 2px solid #10b981;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            color: #065f46;
-        }
-        
-        .status-box {
-            background: #dbeafe;
-            border: 2px solid #3b82f6;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            color: #1e40af;
+            width: auto;
+            font-size: 14px;
         }
         
         .modal {
             display: none;
             position: fixed;
             z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
             background-color: rgba(0,0,0,0.5);
-            animation: fadeIn 0.3s;
         }
-        
         .modal-content {
             background-color: white;
             margin: 5% auto;
@@ -276,9 +171,7 @@
             max-width: 600px;
             max-height: 90vh;
             overflow-y: auto;
-            animation: slideDown 0.3s;
         }
-        
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -287,50 +180,19 @@
             border-bottom: 3px solid #667eea;
             padding-bottom: 10px;
         }
-        
-        .modal-header h2 {
-            color: #333;
-        }
-        
         .close-btn {
             color: #aaa;
             font-size: 28px;
             font-weight: bold;
             cursor: pointer;
+            background: none;
+            border: none;
             width: auto;
             padding: 0;
-            background: none;
         }
-        
-        .close-btn:hover {
-            color: #000;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        @keyframes slideDown {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
         @media (max-width: 768px) {
-            .form-row, .device-info {
-                grid-template-columns: 1fr;
-            }
-            
-            h1 {
-                font-size: 1.8em;
-            }
-            
-            .modal-content {
-                margin: 10% auto;
-                width: 95%;
-            }
+            .form-row, .device-info { grid-template-columns: 1fr; }
+            h1 { font-size: 1.8em; }
         }
     </style>
 </head>
@@ -338,8 +200,12 @@
     <div class="container">
         <h1>🖥️ Gestor de Accesos Remotos </h1>
         
-        <!-- Mensajes de estado -->
-        <div id="statusMessages"></div>
+        <!-- Panel de diagnóstico -->
+        <button class="toggle-debug" onclick="toggleDebug()">🔍 Mostrar/Ocultar Diagnóstico</button>
+        <div id="debugPanel" class="debug-panel" style="display: none;">
+            <div style="color: white; font-weight: bold; margin-bottom: 10px;"> Log de Conexión:</div>
+            <div id="debugLogs"></div>
+        </div>
         
         <!-- Formulario -->
         <div class="card">
@@ -411,7 +277,7 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>🆔 ID (AnyDesk/RustDesk) o Usuario (AirDroid) *</label>
+                        <label>🆔 ID o Usuario *</label>
                         <input type="text" id="edit_identificador" required>
                     </div>
                     <div class="form-group">
@@ -429,48 +295,61 @@
     </div>
 
     <script>
-        // ⚠️ CONFIGURACIÓN - REEMPLAZA ESTOS VALORES
+        // ⚠️ CONFIGURACIÓN - REEMPLAZA ESTOS VALORES CON TUS DATOS REALES
         const SUPABASE_URL = 'https://ebcmehqzyvzgdjfwhuif.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_4QS8UET1F-ZuA7e5DpWSgg_TGAOz1TC'; // ← REEMPLAZA ESTO
+        const SUPABASE_KEY = 'sb_publishable_4QS8UET1F-ZuA7e5DpWSgg_TGAOz1TC'; // ← REEMPLAZA CON TU CLAVE REAL
+        
+        // Sistema de logs
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('debugLogs');
+            const timestamp = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `[${timestamp}] ${message}`;
+            logsDiv.appendChild(entry);
+            console.log(`[${type}] ${message}`);
+        }
+        
+        function toggleDebug() {
+            const panel = document.getElementById('debugPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
         
         // Verificar configuración
-        function checkConfiguration() {
-            const statusDiv = document.getElementById('statusMessages');
-            
-            if (SUPABASE_KEY === 'TU_CLAVE_PUBLISHABLE_AQUI' || SUPABASE_KEY.includes('...')) {
-                statusDiv.innerHTML = `
-                    <div class="error-box">
-                        <h3>⚠️ Error de Configuración</h3>
-                        <p>La SUPABASE_KEY no está configurada correctamente.</p>
-                        <p><strong>Clave actual:</strong> ${SUPABASE_KEY}</p>
-                        <p>Debes reemplazarla con tu clave real de Supabase (empieza con "sb_publishable_")</p>
-                    </div>
-                `;
-                return false;
-            }
-            
-            statusDiv.innerHTML = `
-                <div class="status-box">
-                    <h3>✅ Configuración OK</h3>
-                    <p>URL: ${SUPABASE_URL}</p>
-                    <p>Conectando a Supabase...</p>
+        log('Iniciando aplicación...', 'info');
+        log(`URL Supabase: ${SUPABASE_URL}`, 'info');
+        log(`Key configurada: ${SUPABASE_KEY.substring(0, 20)}...`, SUPABASE_KEY.includes('TU_CLAVE') || SUPABASE_KEY.includes('...') ? 'error' : 'success');
+        
+        if (SUPABASE_KEY.includes('TU_CLAVE') || SUPABASE_KEY.includes('...')) {
+            log(' ERROR: La SUPABASE_KEY no está configurada correctamente', 'error');
+            log('Debes reemplazarla con tu clave real de Supabase', 'error');
+            document.getElementById('devicesList').innerHTML = `
+                <div style="background: #fee2e2; border: 2px solid #ef4444; border-radius: 8px; padding: 20px; color: #991b1b;">
+                    <h3>⚠️ Error de Configuración</h3>
+                    <p>La SUPABASE_KEY no está configurada correctamente.</p>
+                    <p><strong>Clave actual:</strong> ${SUPABASE_KEY}</p>
+                    <p>Debes reemplazarla con tu clave real de Supabase (empieza con "sb_publishable_")</p>
+                    <p style="margin-top: 10px;"><strong>Instrucciones:</strong></p>
+                    <ol style="margin-left: 20px;">
+                        <li>Ve a Supabase → Settings → API Keys</li>
+                        <li>Copia la "Publishable key" completa</li>
+                        <li>Edita el archivo index.html</li>
+                        <li>Reemplaza la línea de SUPABASE_KEY con tu clave real</li>
+                        <li>Guarda y sube los cambios a GitHub</li>
+                    </ol>
                 </div>
             `;
-            return true;
+        } else {
+            log('✅ Configuración inicial correcta', 'success');
         }
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        log('Cliente Supabase creado', 'info');
         
-        // Mostrar mensajes
-        function showMessage(type, message) {
-            const statusDiv = document.getElementById('statusMessages');
-            const boxClass = type === 'error' ? 'error-box' : type === 'success' ? 'success-box' : 'status-box';
-            statusDiv.innerHTML = `<div class="${boxClass}"><h3>${message}</h3></div>`;
-            setTimeout(() => { statusDiv.innerHTML = ''; }, 5000);
-        }
-        
-        // Cargar dispositivos al iniciar
+        // Cargar dispositivos
         async function loadDevices() {
+            log('Intentando cargar dispositivos...', 'info');
+            
             try {
                 const { data, error } = await supabase
                     .from('dispositivos')
@@ -478,23 +357,27 @@
                     .order('created_at', { ascending: false });
                 
                 if (error) {
-                    console.error('Error al cargar:', error);
+                    log(`Error al cargar: ${error.message}`, 'error');
+                    log(`Código de error: ${error.code}`, 'error');
+                    log(`Detalles: ${error.details || 'N/A'}`, 'error');
+                    
                     document.getElementById('devicesList').innerHTML = `
-                        <div class="error-box">
+                        <div style="background: #fee2e2; border: 2px solid #ef4444; border-radius: 8px; padding: 20px; color: #991b1b;">
                             <h3>❌ Error al cargar dispositivos</h3>
+                            <p><strong>Error:</strong> ${error.message}</p>
                             <p><strong>Código:</strong> ${error.code}</p>
-                            <p><strong>Mensaje:</strong> ${error.message}</p>
-                            <p><strong>Detalle:</strong> ${error.details || 'N/A'}</p>
-                            <p style="margin-top: 10px;"><strong>Posibles causas:</strong></p>
+                            <p style="margin-top: 10px;"><strong>Posibles soluciones:</strong></p>
                             <ul style="margin-left: 20px;">
-                                <li>La tabla 'dispositivos' no existe en Supabase</li>
-                                <li>La SUPABASE_KEY es incorrecta</li>
-                                <li>No ejecutaste el SQL para crear la tabla</li>
+                                <li>Verifica que la tabla 'dispositivos' existe en Supabase</li>
+                                <li>Verifica que las políticas RLS están configuradas</li>
+                                <li>Verifica que la SUPABASE_KEY es correcta</li>
                             </ul>
                         </div>
                     `;
                     return;
                 }
+                
+                log(`✅ Dispositivos cargados: ${data.length}`, 'success');
                 
                 if (data.length === 0) {
                     document.getElementById('devicesList').innerHTML = '<div class="empty-state">🖥️ No hay equipos registrados aún</div>';
@@ -503,9 +386,9 @@
                 
                 displayDevices(data);
             } catch (err) {
-                console.error('Error inesperado:', err);
+                log(`Error inesperado: ${err.message}`, 'error');
                 document.getElementById('devicesList').innerHTML = `
-                    <div class="error-box">
+                    <div style="background: #fee2e2; border: 2px solid #ef4444; border-radius: 8px; padding: 20px; color: #991b1b;">
                         <h3>❌ Error inesperado</h3>
                         <p>${err.message}</p>
                     </div>
@@ -527,10 +410,10 @@
                     <div class="device-info">
                         <div class="info-item">
                             <span class="info-label">${device.tipo_acceso === 'AirDroid' ? '👤 Usuario:' : '🆔 ID:'}</span>
-                            <span class="info-value" onclick="copyToClipboard('${device.identificador}')">${device.identificador} 📋</span>
+                            <span class="info-value" onclick="copyToClipboard('${device.identificador}')">${device.identificador} </span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label"> Contraseña:</span>
+                            <span class="info-label">🔒 Contraseña:</span>
                             <span class="info-value" onclick="copyToClipboard('${device.contrasena || ''}')">${device.contrasena || 'Sin contraseña'} 📋</span>
                         </div>
                     </div>
@@ -553,16 +436,17 @@
                 notas: document.getElementById('notas').value
             };
             
-            console.log('Guardando dispositivo:', device);
+            log('Guardando dispositivo...', 'info');
             
             const { data, error } = await supabase.from('dispositivos').insert([device]).select();
             
             if (error) {
-                console.error('Error al guardar:', error);
-                showMessage('error', `❌ Error al guardar: ${error.message}`);
+                log(`Error al guardar: ${error.message}`, 'error');
+                alert('❌ Error al guardar: ' + error.message);
             } else {
+                log('✅ Dispositivo guardado', 'success');
                 document.getElementById('deviceForm').reset();
-                showMessage('success', '✅ Equipo guardado exitosamente');
+                alert('✅ Equipo guardado exitosamente');
                 loadDevices();
             }
         });
@@ -578,12 +462,10 @@
             document.getElementById('editModal').style.display = 'block';
         }
         
-        // Cerrar modal
         function closeModal() {
             document.getElementById('editModal').style.display = 'none';
         }
         
-        // Cerrar modal al hacer clic fuera
         window.onclick = function(event) {
             const modal = document.getElementById('editModal');
             if (event.target == modal) {
@@ -607,10 +489,12 @@
             const { error } = await supabase.from('dispositivos').update(device).eq('id', id);
             
             if (error) {
-                showMessage('error', `❌ Error al actualizar: ${error.message}`);
+                log(`Error al actualizar: ${error.message}`, 'error');
+                alert('❌ Error al actualizar: ' + error.message);
             } else {
+                log('✅ Dispositivo actualizado', 'success');
                 closeModal();
-                showMessage('success', '✅ Equipo actualizado exitosamente');
+                alert('✅ Equipo actualizado exitosamente');
                 loadDevices();
             }
         });
@@ -620,10 +504,12 @@
             if (confirm('¿Estás seguro de eliminar este registro?')) {
                 const { error } = await supabase.from('dispositivos').delete().eq('id', id);
                 if (!error) {
-                    showMessage('success', '✅ Equipo eliminado exitosamente');
+                    log('✅ Dispositivo eliminado', 'success');
+                    alert('✅ Equipo eliminado exitosamente');
                     loadDevices();
                 } else {
-                    showMessage('error', `❌ Error al eliminar: ${error.message}`);
+                    log(`Error al eliminar: ${error.message}`, 'error');
+                    alert('❌ Error al eliminar: ' + error.message);
                 }
             }
         }
@@ -631,16 +517,16 @@
         // Copiar al portapapeles
         function copyToClipboard(text) {
             if (!text) {
-                showMessage('error', '️ No hay texto para copiar');
+                alert('⚠️ No hay texto para copiar');
                 return;
             }
             navigator.clipboard.writeText(text).then(() => {
-                showMessage('success', `✅ Copiado: ${text}`);
+                alert('✅ Copiado: ' + text);
             });
         }
         
         // Inicializar
-        checkConfiguration();
+        log('Aplicación inicializada', 'success');
         loadDevices();
     </script>
 </body>
