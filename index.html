@@ -217,49 +217,49 @@
 </head>
 <body>
     <div class="container">
-        <h1>🖥️ Gestor de Accesos Remotos</h1>
+        <h1>🖥️ Gestor de Accesos Remotos 💻</h1>
         
         <!-- Formulario -->
         <div class="card">
-            <h2>📝 Registrar Nuevo Equipo</h2>
+            <h2>📝 Registrar Nuevo Equipo 🖥️</h2>
             <form id="deviceForm">
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Nombre del Equipo *</label>
+                        <label>💻 Nombre del Equipo *</label>
                         <input type="text" id="nombre_equipo" required>
                     </div>
                     <div class="form-group">
-                        <label>Tipo de Acceso *</label>
+                        <label>🔌 Tipo de Acceso *</label>
                         <select id="tipo_acceso" required>
-                            <option value="AnyDesk">AnyDesk</option>
-                            <option value="RustDesk">RustDesk</option>
-                            <option value="AirDroid">AirDroid</option>
+                            <option value="AnyDesk">🖥️ AnyDesk</option>
+                            <option value="RustDesk"> RustDesk</option>
+                            <option value="AirDroid">📱 AirDroid</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>ID (AnyDesk/RustDesk) o Usuario (AirDroid) *</label>
+                        <label>🆔 ID (AnyDesk/RustDesk) o Usuario (AirDroid) *</label>
                         <input type="text" id="identificador" required>
                     </div>
                     <div class="form-group">
-                        <label>Contraseña *</label>
+                        <label> Contraseña *</label>
                         <input type="text" id="contrasena" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Notas (Opcional)</label>
+                    <label>📝 Notas (Opcional)</label>
                     <textarea id="notas" rows="2"></textarea>
                 </div>
-                <button type="submit">💾 Guardar Equipo</button>
+                <button type="submit">💾 Guardar Equipo 🖥️</button>
             </form>
         </div>
         
         <!-- Lista de dispositivos -->
         <div class="card">
-            <h2>📋 Equipos Registrados</h2>
+            <h2>📋 Equipos Registrados 💻</h2>
             <div id="devicesList">
-                <div class="loading">Cargando dispositivos...</div>
+                <div class="loading">⏳ Cargando dispositivos...</div>
             </div>
         </div>
     </div>
@@ -267,7 +267,7 @@
     <script>
         // Configuración de Supabase
         const SUPABASE_URL = 'https://ebcmehqzyvzgdjfwhuif.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_4QS8UET1F-ZuA7e5DpWSgg_TGAOz1TC';'; // Reemplaza con tu clave completa
+        const SUPABASE_KEY = 'sb_publishable_4QS8UET1F-ZuA7e5DpWSgg_TGAOz1TC'; // Reemplaza con tu clave completa
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         
@@ -280,12 +280,12 @@
             
             if (error) {
                 console.error('Error:', error);
-                document.getElementById('devicesList').innerHTML = '<div class="empty-state">Error al cargar dispositivos</div>';
+                document.getElementById('devicesList').innerHTML = '<div class="empty-state">❌ Error al cargar dispositivos</div>';
                 return;
             }
             
             if (data.length === 0) {
-                document.getElementById('devicesList').innerHTML = '<div class="empty-state">No hay equipos registrados aún</div>';
+                document.getElementById('devicesList').innerHTML = '<div class="empty-state">️ No hay equipos registrados aún</div>';
                 return;
             }
             
@@ -295,18 +295,18 @@
         function displayDevices(devices) {
             const html = devices.map(device => `
                 <div class="device-card">
-                    <button class="delete-btn" onclick="deleteDevice(${device.id})">️ Eliminar</button>
+                    <button class="delete-btn" onclick="deleteDevice(${device.id})">🗑️ Eliminar</button>
                     <div class="device-header">
-                        <div class="device-name">${device.nombre_equipo}</div>
-                        <span class="badge badge-${device.tipo_acceso.toLowerCase()}">${device.tipo_acceso}</span>
+                        <div class="device-name">🖥️ ${device.nombre_equipo}</div>
+                        <span class="badge badge-${device.tipo_acceso.toLowerCase()}">${device.tipo_acceso === 'AnyDesk' ? '️' : device.tipo_acceso === 'RustDesk' ? '💻' : ''} ${device.tipo_acceso}</span>
                     </div>
                     <div class="device-info">
                         <div class="info-item">
-                            <span class="info-label">${device.tipo_acceso === 'AirDroid' ? 'Usuario:' : 'ID:'}</span>
-                            <span class="info-value" onclick="copyToClipboard('${device.identificador}')">${device.identificador} 📋</span>
+                            <span class="info-label">${device.tipo_acceso === 'AirDroid' ? '👤 Usuario:' : '🆔 ID:'}</span>
+                            <span class="info-value" onclick="copyToClipboard('${device.identificador}')">${device.identificador} </span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Contraseña:</span>
+                            <span class="info-label">🔒 Contraseña:</span>
                             <span class="info-value" onclick="copyToClipboard('${device.contrasena}')">${device.contrasena} 📋</span>
                         </div>
                     </div>
@@ -332,7 +332,7 @@
             const { error } = await supabase.from('dispositivos').insert([device]);
             
             if (error) {
-                alert('Error al guardar: ' + error.message);
+                alert(' Error al guardar: ' + error.message);
             } else {
                 document.getElementById('deviceForm').reset();
                 loadDevices();
@@ -352,7 +352,7 @@
         // Copiar al portapapeles
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                alert('Copiado: ' + text);
+                alert('✅ Copiado: ' + text);
             });
         }
         
