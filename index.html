@@ -124,8 +124,6 @@
         }
         .loading { text-align: center; padding: 20px; color: #666; }
         .empty-state { text-align: center; padding: 40px; color: #999; }
-        
-        /* Panel de diagnóstico */
         .debug-panel {
             background: #1e1e1e;
             color: #00ff00;
@@ -142,7 +140,6 @@
         .debug-panel .success { color: #00ff00; }
         .debug-panel .warning { color: #ffaa00; }
         .debug-panel .info { color: #00aaff; }
-        
         .toggle-debug {
             background: #333;
             color: white;
@@ -153,7 +150,6 @@
             width: auto;
             font-size: 14px;
         }
-        
         .modal {
             display: none;
             position: fixed;
@@ -198,22 +194,20 @@
 </head>
 <body>
     <div class="container">
-        <h1>🖥️ Gestor de Accesos Remotos </h1>
+        <h1>🖥️ Gestor de Accesos Remotos 💻</h1>
         
-        <!-- Panel de diagnóstico -->
         <button class="toggle-debug" onclick="toggleDebug()">🔍 Mostrar/Ocultar Diagnóstico</button>
         <div id="debugPanel" class="debug-panel" style="display: none;">
-            <div style="color: white; font-weight: bold; margin-bottom: 10px;"> Log de Conexión:</div>
+            <div style="color: white; font-weight: bold; margin-bottom: 10px;">📋 Log de Conexión:</div>
             <div id="debugLogs"></div>
         </div>
         
-        <!-- Formulario -->
         <div class="card">
             <h2>📝 Registrar Nuevo Equipo 🖥️</h2>
             <form id="deviceForm">
                 <div class="form-row">
                     <div class="form-group">
-                        <label> Nombre del Equipo *</label>
+                        <label>💻 Nombre del Equipo *</label>
                         <input type="text" id="nombre_equipo" required>
                     </div>
                     <div class="form-group">
@@ -227,7 +221,7 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label> ID (AnyDesk/RustDesk) o Usuario (AirDroid) *</label>
+                        <label>🆔 ID (AnyDesk/RustDesk) o Usuario (AirDroid) *</label>
                         <input type="text" id="identificador" required>
                     </div>
                     <div class="form-group">
@@ -236,14 +230,13 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>📝 Notas (Opcional)</label>
+                    <label> Notas (Opcional)</label>
                     <textarea id="notas" rows="2"></textarea>
                 </div>
-                <button type="submit"> Guardar Equipo 🖥️</button>
+                <button type="submit">💾 Guardar Equipo 🖥️</button>
             </form>
         </div>
         
-        <!-- Lista de dispositivos -->
         <div class="card">
             <h2>📋 Equipos Registrados 💻</h2>
             <div id="devicesList">
@@ -252,11 +245,10 @@
         </div>
     </div>
 
-    <!-- Modal de Edición -->
     <div id="editModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>️ Editar Equipo 🖥️</h2>
+                <h2>✏️ Editar Equipo 🖥️</h2>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
             <form id="editForm">
@@ -315,27 +307,21 @@
             panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
         }
         
-        // Verificar configuración
-        log('Iniciando aplicación...', 'info');
-        log(`URL Supabase: ${SUPABASE_URL}`, 'info');
-        log(`Key configurada: ${SUPABASE_KEY.substring(0, 20)}...`, SUPABASE_KEY.includes('TU_CLAVE') || SUPABASE_KEY.includes('...') ? 'error' : 'success');
+        log('🚀 Iniciando aplicación...', 'info');
+        log(`URL: ${SUPABASE_URL}`, 'info');
         
         if (SUPABASE_KEY.includes('TU_CLAVE') || SUPABASE_KEY.includes('...')) {
-            log(' ERROR: La SUPABASE_KEY no está configurada correctamente', 'error');
-            log('Debes reemplazarla con tu clave real de Supabase', 'error');
+            log('❌ ERROR: La SUPABASE_KEY no está configurada', 'error');
             document.getElementById('devicesList').innerHTML = `
                 <div style="background: #fee2e2; border: 2px solid #ef4444; border-radius: 8px; padding: 20px; color: #991b1b;">
                     <h3>⚠️ Error de Configuración</h3>
                     <p>La SUPABASE_KEY no está configurada correctamente.</p>
-                    <p><strong>Clave actual:</strong> ${SUPABASE_KEY}</p>
-                    <p>Debes reemplazarla con tu clave real de Supabase (empieza con "sb_publishable_")</p>
-                    <p style="margin-top: 10px;"><strong>Instrucciones:</strong></p>
+                    <p><strong>Instrucciones:</strong></p>
                     <ol style="margin-left: 20px;">
                         <li>Ve a Supabase → Settings → API Keys</li>
                         <li>Copia la "Publishable key" completa</li>
                         <li>Edita el archivo index.html</li>
-                        <li>Reemplaza la línea de SUPABASE_KEY con tu clave real</li>
-                        <li>Guarda y sube los cambios a GitHub</li>
+                        <li>Reemplaza la línea de SUPABASE_KEY</li>
                     </ol>
                 </div>
             `;
@@ -343,35 +329,28 @@
             log('✅ Configuración inicial correcta', 'success');
         }
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        log('Cliente Supabase creado', 'info');
+        // ✅ CAMBIO IMPORTANTE: Usar supabaseClient en lugar de supabase
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        log('✅ Cliente Supabase creado', 'success');
         
-        // Cargar dispositivos
         async function loadDevices() {
-            log('Intentando cargar dispositivos...', 'info');
+            log('📡 Cargando dispositivos...', 'info');
             
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('dispositivos')
                     .select('*')
                     .order('created_at', { ascending: false });
                 
                 if (error) {
-                    log(`Error al cargar: ${error.message}`, 'error');
-                    log(`Código de error: ${error.code}`, 'error');
-                    log(`Detalles: ${error.details || 'N/A'}`, 'error');
+                    log(`❌ Error: ${error.message}`, 'error');
+                    log(`Código: ${error.code}`, 'error');
                     
                     document.getElementById('devicesList').innerHTML = `
                         <div style="background: #fee2e2; border: 2px solid #ef4444; border-radius: 8px; padding: 20px; color: #991b1b;">
                             <h3>❌ Error al cargar dispositivos</h3>
                             <p><strong>Error:</strong> ${error.message}</p>
                             <p><strong>Código:</strong> ${error.code}</p>
-                            <p style="margin-top: 10px;"><strong>Posibles soluciones:</strong></p>
-                            <ul style="margin-left: 20px;">
-                                <li>Verifica que la tabla 'dispositivos' existe en Supabase</li>
-                                <li>Verifica que las políticas RLS están configuradas</li>
-                                <li>Verifica que la SUPABASE_KEY es correcta</li>
-                            </ul>
                         </div>
                     `;
                     return;
@@ -386,13 +365,7 @@
                 
                 displayDevices(data);
             } catch (err) {
-                log(`Error inesperado: ${err.message}`, 'error');
-                document.getElementById('devicesList').innerHTML = `
-                    <div style="background: #fee2e2; border: 2px solid #ef4444; border-radius: 8px; padding: 20px; color: #991b1b;">
-                        <h3>❌ Error inesperado</h3>
-                        <p>${err.message}</p>
-                    </div>
-                `;
+                log(`❌ Error inesperado: ${err.message}`, 'error');
             }
         }
         
@@ -401,7 +374,7 @@
                 <div class="device-card">
                     <div class="action-buttons">
                         <button class="edit-btn" onclick="openEditModal(${device.id}, '${device.nombre_equipo}', '${device.tipo_acceso}', '${device.identificador}', '${device.contrasena || ''}', '${device.notas || ''}')">✏️ Editar</button>
-                        <button class="delete-btn" onclick="deleteDevice(${device.id})">🗑️ Eliminar</button>
+                        <button class="delete-btn" onclick="deleteDevice(${device.id})">️ Eliminar</button>
                     </div>
                     <div class="device-header">
                         <div class="device-name">🖥️ ${device.nombre_equipo}</div>
@@ -410,10 +383,10 @@
                     <div class="device-info">
                         <div class="info-item">
                             <span class="info-label">${device.tipo_acceso === 'AirDroid' ? '👤 Usuario:' : '🆔 ID:'}</span>
-                            <span class="info-value" onclick="copyToClipboard('${device.identificador}')">${device.identificador} </span>
+                            <span class="info-value" onclick="copyToClipboard('${device.identificador}')">${device.identificador} 📋</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">🔒 Contraseña:</span>
+                            <span class="info-label"> Contraseña:</span>
                             <span class="info-value" onclick="copyToClipboard('${device.contrasena || ''}')">${device.contrasena || 'Sin contraseña'} 📋</span>
                         </div>
                     </div>
@@ -424,7 +397,6 @@
             document.getElementById('devicesList').innerHTML = html;
         }
         
-        // Guardar nuevo dispositivo
         document.getElementById('deviceForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -436,12 +408,12 @@
                 notas: document.getElementById('notas').value
             };
             
-            log('Guardando dispositivo...', 'info');
+            log('💾 Guardando dispositivo...', 'info');
             
-            const { data, error } = await supabase.from('dispositivos').insert([device]).select();
+            const { data, error } = await supabaseClient.from('dispositivos').insert([device]).select();
             
             if (error) {
-                log(`Error al guardar: ${error.message}`, 'error');
+                log(` Error al guardar: ${error.message}`, 'error');
                 alert('❌ Error al guardar: ' + error.message);
             } else {
                 log('✅ Dispositivo guardado', 'success');
@@ -451,7 +423,6 @@
             }
         });
         
-        // Abrir modal de edición
         function openEditModal(id, nombre, tipo, identificador, contrasena, notas) {
             document.getElementById('edit_id').value = id;
             document.getElementById('edit_nombre_equipo').value = nombre;
@@ -473,7 +444,6 @@
             }
         }
         
-        // Actualizar dispositivo
         document.getElementById('editForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -486,10 +456,10 @@
                 notas: document.getElementById('edit_notas').value
             };
             
-            const { error } = await supabase.from('dispositivos').update(device).eq('id', id);
+            const { error } = await supabaseClient.from('dispositivos').update(device).eq('id', id);
             
             if (error) {
-                log(`Error al actualizar: ${error.message}`, 'error');
+                log(`❌ Error al actualizar: ${error.message}`, 'error');
                 alert('❌ Error al actualizar: ' + error.message);
             } else {
                 log('✅ Dispositivo actualizado', 'success');
@@ -499,22 +469,20 @@
             }
         });
         
-        // Eliminar dispositivo
         async function deleteDevice(id) {
             if (confirm('¿Estás seguro de eliminar este registro?')) {
-                const { error } = await supabase.from('dispositivos').delete().eq('id', id);
+                const { error } = await supabaseClient.from('dispositivos').delete().eq('id', id);
                 if (!error) {
                     log('✅ Dispositivo eliminado', 'success');
                     alert('✅ Equipo eliminado exitosamente');
                     loadDevices();
                 } else {
-                    log(`Error al eliminar: ${error.message}`, 'error');
+                    log(`❌ Error al eliminar: ${error.message}`, 'error');
                     alert('❌ Error al eliminar: ' + error.message);
                 }
             }
         }
         
-        // Copiar al portapapeles
         function copyToClipboard(text) {
             if (!text) {
                 alert('⚠️ No hay texto para copiar');
@@ -525,8 +493,7 @@
             });
         }
         
-        // Inicializar
-        log('Aplicación inicializada', 'success');
+        log('✅ Aplicación inicializada', 'success');
         loadDevices();
     </script>
 </body>
