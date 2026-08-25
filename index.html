@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestor de Accesos Remotos</title>
+    <title>🖥️ Gestor de Accesos Remotos</title>
+    <!-- ✅ Favicon con emoji de computadora -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖥️</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖥️</text></svg>">
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #667eea, #764ba2); padding: 20px; min-height: 100vh; margin: 0; }
         .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
@@ -30,8 +33,6 @@
         .error { background: #fee2e2; color: #991b1b; border: 2px solid #ef4444; }
         .testing { background: #dbeafe; color: #1e40af; border: 2px solid #3b82f6; }
         .empty { text-align: center; color: #999; padding: 30px; }
-        
-        /* Estilos para agrupación */
         .service-group { margin-bottom: 30px; }
         .service-header {
             display: flex;
@@ -56,11 +57,11 @@
     </style>
 </head>
 <body>
-    <h1>️ Gestor de Accesos Remotos </h1>
+    <h1>️ Gestor de Accesos Remotos 💻</h1>
     <div class="container">
         <div id="status" class="status testing">🔄 Conectando a Supabase...</div>
         
-        <h2> Registrar Nuevo Equipo</h2>
+        <h2>📝 Registrar Nuevo Equipo</h2>
         <form id="form">
             <input id="nombre" placeholder="Nombre del Equipo *" required>
             <select id="tipo" required>
@@ -106,55 +107,26 @@
                     return;
                 }
                 
-                // Agrupar por tipo de servicio
-                const grupos = {
-                    'AnyDesk': [],
-                    'RustDesk': [],
-                    'AirDroid': []
-                };
+                const grupos = { 'AnyDesk': [], 'RustDesk': [], 'AirDroid': [] };
+                data.forEach(d => { if (grupos[d.tipo_acceso]) grupos[d.tipo_acceso].push(d); });
                 
-                data.forEach(d => {
-                    if (grupos[d.tipo_acceso]) {
-                        grupos[d.tipo_acceso].push(d);
-                    }
-                });
-                
-                // Generar HTML agrupado
                 let html = '';
                 
-                // AnyDesk
                 if (grupos.AnyDesk.length > 0) {
-                    html += '<div class="service-group">';
-                    html += '<div class="service-header service-header-anydesk">';
-                    html += '🖥️ AnyDesk <span class="service-count">' + grupos.AnyDesk.length + ' equipo(s)</span>';
-                    html += '</div>';
-                    grupos.AnyDesk.forEach(d => {
-                        html += crearDeviceCard(d);
-                    });
+                    html += '<div class="service-group"><div class="service-header service-header-anydesk">🖥️ AnyDesk <span class="service-count">' + grupos.AnyDesk.length + ' equipo(s)</span></div>';
+                    grupos.AnyDesk.forEach(d => { html += crearDeviceCard(d); });
                     html += '</div>';
                 }
                 
-                // RustDesk
                 if (grupos.RustDesk.length > 0) {
-                    html += '<div class="service-group">';
-                    html += '<div class="service-header service-header-rustdesk">';
-                    html += '💻 RustDesk <span class="service-count">' + grupos.RustDesk.length + ' equipo(s)</span>';
-                    html += '</div>';
-                    grupos.RustDesk.forEach(d => {
-                        html += crearDeviceCard(d);
-                    });
+                    html += '<div class="service-group"><div class="service-header service-header-rustdesk">💻 RustDesk <span class="service-count">' + grupos.RustDesk.length + ' equipo(s)</span></div>';
+                    grupos.RustDesk.forEach(d => { html += crearDeviceCard(d); });
                     html += '</div>';
                 }
                 
-                // AirDroid
                 if (grupos.AirDroid.length > 0) {
-                    html += '<div class="service-group">';
-                    html += '<div class="service-header service-header-airdroid">';
-                    html += '📱 AirDroid <span class="service-count">' + grupos.AirDroid.length + ' equipo(s)</span>';
-                    html += '</div>';
-                    grupos.AirDroid.forEach(d => {
-                        html += crearDeviceCard(d);
-                    });
+                    html += '<div class="service-group"><div class="service-header service-header-airdroid">📱 AirDroid <span class="service-count">' + grupos.AirDroid.length + ' equipo(s)</span></div>';
+                    grupos.AirDroid.forEach(d => { html += crearDeviceCard(d); });
                     html += '</div>';
                 }
                 
@@ -175,9 +147,9 @@
                 '</div>' +
                 '<div class="device-info">' +
                     '<div class="info-item"><span style="font-weight:600; color:#667eea;">' + 
-                    (d.tipo_acceso === 'AnyDesk' ? '🖥️ AnyDesk - ID:' : d.tipo_acceso === 'RustDesk' ? '💻 RustDesk - ID:' : '📱 AirDroid - Usuario:') + 
+                    (d.tipo_acceso === 'AnyDesk' ? '️ AnyDesk - ID:' : d.tipo_acceso === 'RustDesk' ? '💻 RustDesk - ID:' : '📱 AirDroid - Usuario:') + 
                     '</span> <span class="info-value" onclick="copiar(\'' + d.identificador + '\')">' + d.identificador + ' 📋</span></div>' +
-                    '<div class="info-item"><span>🔒 Contraseña:</span> <span class="info-value" onclick="copiar(\'' + (d.contrasena || '') + '\')">' + (d.contrasena || 'Sin contraseña') + ' 📋</span></div>' +
+                    '<div class="info-item"><span> Contraseña:</span> <span class="info-value" onclick="copiar(\'' + (d.contrasena || '') + '\')">' + (d.contrasena || 'Sin contraseña') + ' 📋</span></div>' +
                 '</div>' +
                 (d.notas ? '<div style="margin-top:10px; padding:8px; background:#fef3c7; border-radius:6px; font-size:0.9em; color:#92400e;">📝 ' + d.notas + '</div>' : '') +
             '</div>';
@@ -219,12 +191,12 @@
                 alert('✅ Equipo eliminado');
                 cargar();
             } catch (e) {
-                alert('❌ Error: ' + e.message);
+                alert(' Error: ' + e.message);
             }
         }
         
         function copiar(texto) {
-            if (!texto) { alert('️ No hay texto para copiar'); return; }
+            if (!texto) { alert('⚠️ No hay texto para copiar'); return; }
             navigator.clipboard.writeText(texto).then(() => alert('✅ Copiado: ' + texto));
         }
         
